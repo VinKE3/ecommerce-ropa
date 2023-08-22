@@ -5,12 +5,46 @@ import Link from "next/link";
 import { CiShoppingCart } from "react-icons/ci";
 import { BiSearch } from "react-icons/bi";
 import { BsChevronCompactUp } from "react-icons/bs";
+import { useSession, signOut, signIn } from "next-auth/react";
 
 type Props = {};
 
 function NavBar({}: Props) {
   const [showProfile, setShowProfile] = useState<boolean>(false);
   const [showNav, setShowNav] = useState<boolean>(false);
+  const { data: session } = useSession();
+  console.log(session?.user);
+  const SignOut = () => {
+    if (session && session.user) {
+      return (
+        <ul className="py-5 px-1 text-neutral-600">
+          <li className="hover:bg-gray-100 hover:text-neutral-900 px-5 py-2 cursor-pointer">
+            {session.user.name}
+          </li>
+          <li
+            onClick={() => signOut()}
+            className="whitespace-nowrap hover:text-red-600 px-5 py-2 cursor-pointer"
+          >
+            Salir
+          </li>
+          <li className="whitespace-nowrap hover:bg-gray-100 hover:text-neutral-900 px-5 py-2 cursor-pointer">
+            Agregar Producto
+          </li>
+        </ul>
+      );
+    }
+    return (
+      <ul>
+        <li
+          onClick={() => signIn()}
+          className="whitespace-nowrap hover:bg-gray-100 hover:text-neutral-900 px-5 py-2 cursor-pointer"
+        >
+          Iniciar Sesión
+        </li>
+      </ul>
+    );
+  };
+  const SignIn = () => {};
   return (
     <div>
       <div className="flex items-center justify-between py-4 relative">
@@ -30,11 +64,13 @@ function NavBar({}: Props) {
                   Filtros
                 </a>
               </li>
-              <li>
-                <a href="/" className="py-3 inline-block w-full">
-                  Mis Productos
-                </a>
-              </li>
+              {session?.user && (
+                <li>
+                  <a href="/myproducts" className="py-3 inline-block w-full">
+                    Mis Productos
+                  </a>
+                </li>
+              )}
             </ul>
           </nav>
         </div>
@@ -54,7 +90,7 @@ function NavBar({}: Props) {
                 showProfile ? "" : "hidden"
               }`}
             >
-              <Link href="/sing">Sesión</Link>
+              <SignOut />
             </div>
           </div>
           <Link href="/cart">
@@ -92,7 +128,7 @@ function NavBar({}: Props) {
             </a>
           </li>
           <li>
-            <a href="/my-products" className="py-3 inline-block w-full">
+            <a href="/myproducts" className="py-3 inline-block w-full">
               Mis Productos
             </a>
           </li>
@@ -100,7 +136,7 @@ function NavBar({}: Props) {
         <div className="flex items-center bg-gray-100 p-2 rounded-lg my-4 py-3">
           <input
             type="text"
-            className="outline-none
+            className="outline-none w-full
           bg-transparent ml-2 caret-blue-500 placeholder:font-light placeholder:text-gray-600 text-[15px]
           "
             placeholder="Buscar"
